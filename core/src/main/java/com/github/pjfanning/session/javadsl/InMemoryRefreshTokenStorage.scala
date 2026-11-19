@@ -13,7 +13,8 @@ import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
 
 /**
- * Java alternative for com.github.pjfanning.session.InMemoryRefreshTokenStorage. Useful for testing.
+ * Java alternative for com.github.pjfanning.session.InMemoryRefreshTokenStorage. Useful for testing; see that class for
+ * why it is not recommended for production.
  */
 abstract class InMemoryRefreshTokenStorage[T]() extends RefreshTokenStorage[T] {
 
