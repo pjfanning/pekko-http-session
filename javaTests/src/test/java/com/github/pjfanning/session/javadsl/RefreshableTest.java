@@ -24,7 +24,7 @@ public class RefreshableTest extends HttpSessionAwareDirectivesTest {
 
     protected Route buildRoute(HttpSessionAwareDirectives<String> testDirectives, SessionContinuity<String> oneOff, SessionContinuity<String> refreshable, SetSessionTransport sessionTransport, CsrfCheckMode<String> checkHeader) {
         return
-            route(
+            concat(
                 path("set", () ->
                     testDirectives.setSession(refreshable, sessionTransport, SESSION, () -> complete("ok"))
                 ),

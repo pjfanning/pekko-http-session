@@ -21,16 +21,16 @@ import org.junit.Test;
 public class CsrfDirectivesTest extends HttpSessionAwareDirectivesTest {
 
     protected Route buildRoute(HttpSessionAwareDirectives<String> testDirectives, SessionContinuity<String> oneOff, SessionContinuity<String> refreshable, SetSessionTransport sessionTransport, CsrfCheckMode<String> csrfCheckMode) {
-        return route(
+        return concat(
             testDirectives.randomTokenCsrfProtection(csrfCheckMode, () ->
-                route(
+                concat(
                     get(() ->
                         path("site", () ->
                             complete("ok")
                         )
                     ),
                     post(() ->
-                        route(
+                        concat(
                             path("login", () ->
                                 testDirectives.setNewCsrfToken(csrfCheckMode, () ->
                                     complete("ok"))),
