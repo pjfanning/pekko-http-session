@@ -150,6 +150,23 @@ Check [java](https://github.com/pjfanning/pekko-http-session/blob/master/example
 
 If a required session is not present, by default a `403` HTTP status code is returned. Finally, a session can be invalidated. See how it's done in examples for [java](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/java/com/softwaremill/example/session/SessionInvalidationJava.java) and [scala](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/scala/com/softwaremill/example/session/SessionInvalidationScala.scala).
 
+### Invalidating sessions
+
+Client-side sessions are stateless: the server does not keep a record of the sessions it has issued, so it cannot
+revoke one. Invalidating a session only tells the client to discard it:
+
+* with cookies, the session cookie is expired and the browser deletes it
+* with headers, an empty session header is sent, and it is up to the client code to clear its stored session
+
+A client that keeps a copy of an invalidated session can keep using it until it expires. This is why sessions should
+have an expiry (`pekko.http.session.max-age`); use refreshable sessions if you need long-lived sessions that can be
+revoked.
+
+When invalidating a `refreshable` session, the refresh token is also removed from the `RefreshTokenStorage`, so it can
+no longer be used to re-create the session. This only works if the client sends the refresh token with the request
+that invalidates the session; the server cannot find the token from the session alone. With cookies the browser
+does this automatically; with headers, make sure the client sends the refresh token header on the logout request.
+
 ### Encrypting the session
 
 It is possible to encrypt the session data by modifying the `pekko.http.session.encrypt-data` config option. When 
@@ -319,6 +336,12 @@ which expire fast, and weaker-authenticated re-creatable sessions (as described 
 
 When touching an existing session, the refresh token will not be re-generated and extended, only the session
 cookie.
+
+However, once the client session has expired, it is re-created from the refresh token, which uses up that token: a
+new refresh token is issued, with a new expiry of `pekko.http.session.refresh-token.max-age`. This applies to both
+`touch[Required|Optional]Session()` and `[required|optional]Session()`. So a user who keeps making requests at least
+once per refresh token max-age stays logged in indefinitely; if you need an absolute limit on how long a login lasts,
+store the login time in the session data and check it yourself.
 
 ## Using from SBT
 
