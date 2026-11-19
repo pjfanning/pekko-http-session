@@ -20,9 +20,8 @@ lazy val commonSettings = Seq(
   scalacOptions ++= Seq("-release", "17")
 )
 
-val pekkoHttpVersion = "1.0.0"
-val pekkoStreamsVersion = "1.0.1"
-val scalaJava8CompatVersion = "1.0.2"
+val pekkoHttpVersion = "2.0.0"
+val pekkoStreamsVersion = "2.0.0"
 val json4sVersion = "4.0.6"
 val jacksonVersion = "2.14.3"
 val pekkoStreamsProvided = "org.apache.pekko" %% "pekko-stream" % pekkoStreamsVersion % "provided"
@@ -41,7 +40,6 @@ lazy val core = (projectMatrix in file("core"))
     name := "pekko-http-session-core",
     libraryDependencies ++= Seq(
       "org.apache.pekko" %% "pekko-http" % pekkoHttpVersion,
-      "org.scala-lang.modules" %% "scala-java8-compat" % scalaJava8CompatVersion,
       pekkoStreamsProvided,
       "org.apache.pekko" %% "pekko-http-testkit" % pekkoHttpVersion % "test",
       pekkoStreamsTestkit,
@@ -93,7 +91,6 @@ lazy val javaTests = (projectMatrix in file("javaTests"))
     libraryDependencies ++= Seq(
       pekkoStreamsProvided,
       "org.apache.pekko" %% "pekko-http" % pekkoHttpVersion,
-      "org.scala-lang.modules" %% "scala-java8-compat" % scalaJava8CompatVersion,
       "org.apache.pekko" %% "pekko-http-testkit" % pekkoHttpVersion % "test",
       pekkoStreamsTestkit,
       "junit" % "junit" % "4.13.2" % "test",

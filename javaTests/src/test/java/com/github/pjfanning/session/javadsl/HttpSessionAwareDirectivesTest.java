@@ -4,11 +4,9 @@ import com.github.pjfanning.session.BasicSessionEncoder;
 import com.github.pjfanning.session.CheckHeader;
 import com.github.pjfanning.session.CheckHeaderAndForm;
 import com.github.pjfanning.session.CsrfCheckMode;
-import com.github.pjfanning.session.RefreshTokenStorage;
 import com.github.pjfanning.session.SessionConfig;
 import com.github.pjfanning.session.SessionEncoder;
 import com.github.pjfanning.session.SetSessionTransport;
-import com.github.pjfanning.session.SingleValueSessionSerializer;
 import org.apache.pekko.actor.ActorSystem;
 import org.apache.pekko.http.javadsl.model.HttpHeader;
 import org.apache.pekko.http.javadsl.model.HttpResponse;
@@ -16,26 +14,20 @@ import org.apache.pekko.http.javadsl.model.headers.HttpCookie;
 import org.apache.pekko.http.javadsl.model.headers.SetCookie;
 import org.apache.pekko.http.javadsl.server.Route;
 import org.apache.pekko.http.javadsl.testkit.JUnitRouteTest;
-import org.apache.pekko.stream.ActorMaterializer;
 import org.apache.pekko.stream.Materializer;
 import com.github.pjfanning.session.BasicSessionEncoder;
 import com.github.pjfanning.session.CheckHeader;
 import com.github.pjfanning.session.CheckHeaderAndForm;
 import com.github.pjfanning.session.CsrfCheckMode;
 import com.github.pjfanning.session.OneOff;
-import com.github.pjfanning.session.RefreshTokenStorage;
 import com.github.pjfanning.session.Refreshable;
 import com.github.pjfanning.session.SessionConfig;
 import com.github.pjfanning.session.SessionContinuity;
 import com.github.pjfanning.session.SessionEncoder;
 import com.github.pjfanning.session.SessionManager;
 import com.github.pjfanning.session.SetSessionTransport;
-import com.github.pjfanning.session.SingleValueSessionSerializer;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
-import scala.compat.java8.JFunction0;
-import scala.compat.java8.JFunction1;
-import scala.util.Try;
 
 import java.net.URLEncoder;
 import java.util.List;
@@ -54,11 +46,7 @@ public abstract class HttpSessionAwareDirectivesTest extends JUnitRouteTest {
     private static final String SECRET = "c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrtpd8ro24rbuqmgtnd1ebag6ljnb65i8a55d482ok7o0nch0bfbe";
     private static final String MAX_SESSION_AGE = "60 seconds";
     private static final SessionEncoder<String> ENCODER = new BasicSessionEncoder<>(
-        new SingleValueSessionSerializer<>(
-            ((JFunction1<String, String>) session -> session),
-            ((JFunction1<String, Try<String>>) session -> Try.apply((JFunction0<String>) (() -> session))),
-            SessionSerializers.StringToStringSessionSerializer
-        )
+        SessionSerializers.singleValue(session -> session, session -> session)
     );
     // in-memory refresh token storage
     private static final RefreshTokenStorage<String> REFRESH_TOKEN_STORAGE = new InMemoryRefreshTokenStorage<String>() {
@@ -100,7 +88,7 @@ public abstract class HttpSessionAwareDirectivesTest extends JUnitRouteTest {
     protected Route createCsrfRouteWithCheckHeaderAndFormMode() {
         SessionManager<String> sessionManager = getDefaultSessionManager();
         final ActorSystem system = ActorSystem.create("CsrfDirectivesTest");
-        final Materializer materializer = ActorMaterializer.create(system);
+        final Materializer materializer = Materializer.createMaterializer(system);
         CheckHeaderAndForm<String> checkHeaderAndForm = new CheckHeaderAndForm<>(sessionManager, materializer);
         return createRoute(null, checkHeaderAndForm, sessionManager);
     }
@@ -129,12 +117,12 @@ public abstract class HttpSessionAwareDirectivesTest extends JUnitRouteTest {
         csrfCookieName = testDirectives.getSessionManager().config().csrfCookieConfig().name();
         csrfSubmittedName = testDirectives.getSessionManager().config().csrfSubmittedName();
 
-        Refreshable<String> refreshable = new Refreshable<>(testDirectives.getSessionManager(),
+        Refreshable<String> refreshable = SessionOptions.refreshable(testDirectives.getSessionManager(),
             REFRESH_TOKEN_STORAGE,
             systemResource().system().dispatcher()
         );
 
-        OneOff<String> oneOff = new OneOff<>(testDirectives.getSessionManager());
+        OneOff<String> oneOff = SessionOptions.oneOff(testDirectives.getSessionManager());
 
 
         return buildRoute(testDirectives, oneOff, refreshable, sessionTransport, csrfCheckMode);

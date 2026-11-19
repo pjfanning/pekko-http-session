@@ -3,7 +3,6 @@ package com.github.pjfanning.session.example.session
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.server.Directives._
-import org.apache.pekko.stream.ActorMaterializer
 import com.github.pjfanning.session.SessionDirectives._
 import com.github.pjfanning.session.{InMemoryRefreshTokenStorage, SessionConfig, SessionManager}
 import com.github.pjfanning.session.SessionOptions._
@@ -14,7 +13,6 @@ import scala.io.StdIn
 
 object VariousSessionsScala extends App with StrictLogging {
   implicit val system: ActorSystem = ActorSystem("example")
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   import system.dispatcher
 
@@ -90,7 +88,7 @@ object VariousSessionsScala extends App with StrictLogging {
         }
       }
 
-  val bindingFuture = Http().bindAndHandle(routes, "localhost", 8080)
+  val bindingFuture = Http().newServerAt("localhost", 8080).bind(routes)
 
   println("Server started, press enter to stop. Visit http://localhost:8080 to see the demo.")
   StdIn.readLine()

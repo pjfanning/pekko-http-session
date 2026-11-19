@@ -2,28 +2,19 @@ package com.github.pjfanning.session.example.serializers;
 
 import com.github.pjfanning.session.example.SomeJavaComplexObject;
 import com.github.pjfanning.session.SessionSerializer;
-import com.github.pjfanning.session.SingleValueSessionSerializer;
 import com.github.pjfanning.session.javadsl.SessionSerializers;
-import scala.Function1;
-import scala.compat.java8.JFunction0;
-import scala.compat.java8.JFunction1;
-import scala.util.Try;
 
-public class MyJavaSingleSessionSerializer extends SingleValueSessionSerializer<SomeJavaComplexObject, String> {
+public class MyJavaSingleSessionSerializer {
 
-    public MyJavaSingleSessionSerializer(
-        Function1<SomeJavaComplexObject, String> toValue,
-        Function1<String, Try<SomeJavaComplexObject>> fromValue,
-        SessionSerializer<String, String> valueSerializer
-    ) {
-        super(toValue, fromValue, valueSerializer);
-    }
+    /**
+     * Stores the session as a single string value. An exception thrown while converting the value back
+     * to a session is treated as a deserialization failure.
+     */
+    public static final SessionSerializer<SomeJavaComplexObject, String> SERIALIZER =
+        SessionSerializers.singleValue(SomeJavaComplexObject::getValue, SomeJavaComplexObject::new);
 
     public static void main(String[] args) {
-        new MyJavaSingleSessionSerializer(
-            (JFunction1<SomeJavaComplexObject, String>) SomeJavaComplexObject::getValue,
-            (JFunction1<String, Try<SomeJavaComplexObject>>) value -> Try.apply((JFunction0<SomeJavaComplexObject>) () -> new SomeJavaComplexObject(value)),
-            SessionSerializers.StringToStringSessionSerializer
-        );
+        String serialized = SERIALIZER.serialize(new SomeJavaComplexObject("abc"));
+        System.out.println(serialized + " -> " + SERIALIZER.deserialize(serialized).get().getValue());
     }
 }
