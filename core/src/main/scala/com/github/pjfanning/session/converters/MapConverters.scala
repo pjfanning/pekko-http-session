@@ -1,6 +1,6 @@
 package com.github.pjfanning.session.converters
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object MapConverters {
 

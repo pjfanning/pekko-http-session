@@ -1,34 +1,25 @@
 package com.github.pjfanning.session.example.serializers;
 
 import com.github.pjfanning.session.example.SomeJavaComplexObject;
-import com.github.pjfanning.session.MultiValueSessionSerializer;
-import com.github.pjfanning.session.converters.MapConverters;
-import scala.Function1;
-import scala.collection.immutable.Map;
-import scala.compat.java8.JFunction0;
-import scala.compat.java8.JFunction1;
-import scala.util.Try;
+import com.github.pjfanning.session.SessionSerializer;
+import com.github.pjfanning.session.javadsl.SessionSerializers;
 
-import java.util.HashMap;
+import java.util.Collections;
 
-public class MyJavaMultiValueSessionSerializer extends MultiValueSessionSerializer<SomeJavaComplexObject> {
+public class MyJavaMultiValueSessionSerializer {
 
-    public MyJavaMultiValueSessionSerializer(
-        Function1<SomeJavaComplexObject, scala.collection.immutable.Map<String, String>> toMap,
-        Function1<scala.collection.immutable.Map<String, String>, Try<SomeJavaComplexObject>> fromMap
-    ) {
-        super(toMap, fromMap);
-    }
+    /**
+     * Stores the session as a map of string keys and values. An exception thrown while converting the map back
+     * to a session is treated as a deserialization failure.
+     */
+    public static final SessionSerializer<SomeJavaComplexObject, String> SERIALIZER =
+        SessionSerializers.multiValue(
+            sjco -> Collections.singletonMap("value", sjco.getValue()),
+            map -> new SomeJavaComplexObject(map.get("value"))
+        );
 
     public static void main(String[] args) {
-        new MyJavaMultiValueSessionSerializer(
-            (JFunction1<SomeJavaComplexObject, Map<String, String>>) sjco -> {
-                final java.util.Map<String, String> m = new HashMap<>();
-                m.put("value", sjco.getValue());
-                return MapConverters.toImmutableMap(m);
-            },
-            (JFunction1<Map<String, String>, Try<SomeJavaComplexObject>>) value ->
-                Try.apply((JFunction0<SomeJavaComplexObject>) () -> new SomeJavaComplexObject(value.get("value").get()))
-        );
+        String serialized = SERIALIZER.serialize(new SomeJavaComplexObject("abc"));
+        System.out.println(serialized + " -> " + SERIALIZER.deserialize(serialized).get().getValue());
     }
 }

@@ -1,26 +1,16 @@
 package com.github.pjfanning.session.example.session;
 
 import com.github.pjfanning.session.SessionSerializer;
-import com.github.pjfanning.session.SingleValueSessionSerializer;
 import com.github.pjfanning.session.javadsl.SessionSerializers;
-import scala.compat.java8.JFunction0;
-import scala.compat.java8.JFunction1;
-import scala.util.Try;
 
 public class MyJavaSession {
 
     /**
-     * This session serializer converts a session type into a value (always a String type). The first two arguments are just conversion functions.
-     * The third argument is a serializer responsible for preparing the data to be sent/received over the wire. There are some ready-to-use serializers available
-     * in the com.github.pjfanning.session.SessionSerializer companion object, like stringToString and mapToString, just to name a few.
+     * This session serializer converts a session into a single String value and back. For other ready-to-use
+     * serializers, and for sessions stored as multiple values, see com.github.pjfanning.session.javadsl.SessionSerializers.
      */
-    private static final SessionSerializer<MyJavaSession, String> serializer = new SingleValueSessionSerializer<>(
-        (JFunction1<MyJavaSession, String>) (session) -> (session.getUsername())
-        ,
-        (JFunction1<String, Try<MyJavaSession>>) (login) -> Try.apply((JFunction0<MyJavaSession>) (() -> new MyJavaSession(login)))
-        ,
-        SessionSerializers.StringToStringSessionSerializer
-    );
+    private static final SessionSerializer<MyJavaSession, String> serializer =
+        SessionSerializers.singleValue(MyJavaSession::getUsername, MyJavaSession::new);
 
     private final String username;
 
