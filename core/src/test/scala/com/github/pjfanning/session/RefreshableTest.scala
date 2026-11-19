@@ -209,6 +209,43 @@ class RefreshableTest extends AnyFlatSpec with ScalatestRouteTest with Matchers 
       }
     }
 
+    // https://github.com/softwaremill/akka-http-session/issues/35
+    p should "remove the refresh token from storage when invalidating a session" in {
+      Get("/set") ~> routes ~> check {
+        val Some(session) = usingValue.getSession
+        val Some(token) = usingValue.getRefreshToken
+
+        Get("/invalidate") ~>
+          addHeader(usingValue.setSessionHeader(session)) ~>
+          addHeader(usingValue.setRefreshTokenHeader(token)) ~>
+          routes ~>
+          check {
+            responseAs[String] should be("ok")
+          }
+
+        // a client that kept the old refresh token cannot use it to re-create the session
+        Get("/getReq") ~> addHeader(usingValue.setRefreshTokenHeader(token)) ~> routes ~> check {
+          rejection should be(AuthorizationFailedRejection)
+        }
+      }
+    }
+
+    p should "not remove the refresh token from storage when it is not sent while invalidating a session" in {
+      Get("/set") ~> routes ~> check {
+        val Some(session) = usingValue.getSession
+        val Some(token) = usingValue.getRefreshToken
+
+        Get("/invalidate") ~> addHeader(usingValue.setSessionHeader(session)) ~> routes ~> check {
+          responseAs[String] should be("ok")
+        }
+
+        // the server can only remove a refresh token that the client sends
+        Get("/getReq") ~> addHeader(usingValue.setRefreshTokenHeader(token)) ~> routes ~> check {
+          responseAs[String] should be(Map("k1" -> "v1").toString)
+        }
+      }
+    }
+
     p should "reject the request if the session is not set" in {
       Get("/getReq") ~> routes ~> check {
         rejection should be(AuthorizationFailedRejection)
