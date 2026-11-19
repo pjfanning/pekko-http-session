@@ -1,14 +1,11 @@
-val scala2_12 = "2.12.18"
-val scala2_13 = "2.13.11"
-val scala3 = "3.3.0"
-val scalaVersions = List(scala2_12, scala2_13, scala3)
-
-ThisBuild / dynverSonatypeSnapshots := true
+val scala2_13 = "2.13.18"
+val scala3 = "3.3.9"
+val scalaVersions = List(scala2_13, scala3)
 
 lazy val commonSettings = Seq(
   organization := "com.github.pjfanning",
   versionScheme := Some("early-semver"),
-  licenses += ("Apache-2.0", new URL("https://github.com/pjfanning/pekko-http-session/blob/main/LICENSE")),
+  licenses += ("Apache-2.0", url("https://github.com/pjfanning/pekko-http-session/blob/main/LICENSE")),
   startYear := Some(2023),
   homepage := Some(url("https://github.com/pjfanning/pekko-http-session")),
   developers := Developer("softwaremill", "SoftwareMill", "info@softwaremill.com", url("https://softwaremill.com")) ::
@@ -19,7 +16,8 @@ lazy val commonSettings = Seq(
       connection = "scm:git:git@github.com:pjfanning/pekko-http-session.git"
     )
   ),
-  publishTo := sonatypePublishToBundle.value
+  javacOptions ++= Seq("--release", "17"),
+  scalacOptions ++= Seq("-release", "17")
 )
 
 val pekkoHttpVersion = "1.0.0"
