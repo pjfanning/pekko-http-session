@@ -1,5 +1,5 @@
-val scala2_13 = "2.13.11"
-val scala3 = "3.3.0"
+val scala2_13 = "2.13.18"
+val scala3 = "3.3.9"
 val scalaVersions = List(scala2_13, scala3)
 
 lazy val commonSettings = Seq(
