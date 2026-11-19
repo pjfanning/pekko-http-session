@@ -1,10 +1,46 @@
 # Pekko HTTP Session
 
-*Retired because [akka-http-session](https://github.com/softwaremill/akka-http-session) now publishes pekko-http-session jars.*
+## Status
 
-https://mvnrepository.com/artifact/com.softwaremill.pekko-http-session
+### Pekko 1.x users
 
-## Old Documentation
+Use the jars published by [softwaremill/akka-http-session](https://github.com/softwaremill/akka-http-session),
+which are built against pekko-http 1.0.0 for Scala 2.12, 2.13 and 3:
+
+```scala
+libraryDependencies += "com.softwaremill.pekko-http-session" %% "core" % "0.7.1"
+libraryDependencies += "com.softwaremill.pekko-http-session" %% "jwt"  % "0.7.1" // optional
+```
+
+Maven coordinates: `com.softwaremill.pekko-http-session:core_2.13:0.7.1` and
+`com.softwaremill.pekko-http-session:jwt_2.13:0.7.1` (use the `_2.12` or `_3` suffix for other Scala versions).
+See [mvnrepository](https://mvnrepository.com/artifact/com.softwaremill.pekko-http-session).
+
+SoftwareMill no longer maintain that project. The `0.8.0` release of this fork (`com.github.pjfanning`) also targets
+Pekko 1.0, but the upstream jars above are recommended for Pekko 1.x.
+
+### Pekko 2.x users
+
+The upstream `0.7.1` jars seem to work with pekko-http 2.0.0: the upstream test suite passes when run against them
+with Pekko 2.0.0, and a bytecode linkage check found no problems. sbt will fail dependency resolution with a
+version conflict error (pekko-http 2.0.0 evicting 1.0.0), which you can override with:
+
+```scala
+libraryDependencySchemes += "org.apache.pekko" %% "pekko-http" % VersionScheme.Always
+```
+
+The aim is to release a `2.0.0` version of this module for Pekko 2.x (Scala 2.13 and 3, Java 17+). Compared with the
+upstream jars:
+
+* the tests have been updated to work with Pekko 2
+* the Java DSL (`com.github.pjfanning.session.javadsl`) has been changed to be pure Java, with no Scala types in its
+  API signatures; this is a breaking change for Java users (see the
+  [Java examples](https://github.com/pjfanning/pekko-http-session/tree/main/example/src/main/java/com/github/pjfanning/session/example))
+
+Note that the upstream jars use the `com.softwaremill.pekkohttpsession` package, while this module uses
+`com.github.pjfanning.session`, so switching between them requires updating imports.
+
+## Documentation
 
 [`pekko-http`](https://pekko.apache.org/docs/pekko-http/current/index.html) is an Apache Pekko module for building *reactive* REST services with an elegant DSL.
 
@@ -286,10 +322,14 @@ cookie.
 
 ## Using from SBT
 
+The `2.0.0` release for Pekko 2.x is not published yet. Once released:
+
 ````scala
-libraryDependencies += "com.github.pjfanning" %% "pekko-http-session-core" % "0.8.0"
-libraryDependencies += "com.github.pjfanning" %% "pekko-http-session-jwt"  % "0.8.0" // optional
+libraryDependencies += "com.github.pjfanning" %% "pekko-http-session-core" % "2.0.0"
+libraryDependencies += "com.github.pjfanning" %% "pekko-http-session-jwt"  % "2.0.0" // optional
 ````
+
+For Pekko 1.x, see [Status](#status).
 
 ## Copyright
 
