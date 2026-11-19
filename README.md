@@ -48,7 +48,7 @@ Note that the upstream jars use the `com.softwaremill.pekkohttpsession` package,
 is a need to maintain user sessions, make sure session data is secure and cannot be tampered with.
 
 `pekko-http-session` provides directives for client-side session management in web and mobile applications, usingValue cookies
-or custom headers + local storage, with optional [Json Web Tokens](http://jwt.io/) format support. 
+or custom headers + local storage, with optional [Json Web Tokens](https://jwt.io/) format support. 
 
 This is a fork of [akka-http-session](https://github.com/softwaremill/akka-http-session).
 The [akka-http-session FAQ](https://github.com/softwaremill/akka-http-session-faq) is a useful resource.
@@ -75,14 +75,14 @@ session data that is sent to the client, and verified when the session token is 
 * sessions can be encrypted
 * sessions contain an expiry date
 * cookie or custom header transport
-* support for [JWT](http://jwt.io/)
+* support for [JWT](https://jwt.io/)
 * refresh token support (e.g. to implement "remember me")
 * CSRF tokens support
 * Java & Scala APIs
 
 ## Example
 
-You can try out a simple example by running [`com.github.pjfanning.session.example.ScalaExample`](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/scala/com/softwaremill/example/ScalaExample.scala) or [`com.github.pjfanning.session.example.JavaExample`](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/java/com/softwaremill/example/JavaExample.java) and opening [http://localhost:8080](http://localhost:8080).
+You can try out a simple example by running [`com.github.pjfanning.session.example.ScalaExample`](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/scala/com/github/pjfanning/session/example/ScalaExample.scala) or [`com.github.pjfanning.session.example.JavaExample`](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/java/com/github/pjfanning/session/example/JavaExample.java) and opening [http://localhost:8080](http://localhost:8080).
 
 ## `SessionManager` & configuration
 
@@ -91,12 +91,12 @@ secret (via a `SessionConfig`). The secret should be a long, random string uniqu
 running in. You can generate one with `SessionUtil.randomServerSecret()`. Note that when you change the secret, 
 all sessions will become invalid.
 
-A `SessionConfig` instance can be created usingValue [Typesafe config](https://github.com/typesafehub/config).
+A `SessionConfig` instance can be created usingValue [Typesafe config](https://github.com/lightbend/config).
 The only value that you need to provide is `pekko.http.session.server-secret`,
 preferably via `application.conf` (then you can safely call `SessionConfig.fromConfig`) or by usingValue 
 `SessionConfig.default()`.
 
-You can customize any of the [default config options](https://github.com/pjfanning/pekko-http-session/blob/master/core/src/main/resources/reference.conf) 
+You can customize any of the [default config options](https://github.com/pjfanning/pekko-http-session/blob/main/core/src/main/resources/reference.conf) 
 either by modifying them through `application.conf` or by modifying the `SessionConfig` case class. If a value has
 type `Option[]`, you can set it to `None` by usingValue a `none` value in the config file (for both java and scala).
 
@@ -135,20 +135,20 @@ Basic types like `String`, `Int`, `Long`, `Float`, `Double` and `Map[String, Str
 Support for other types can be added by providing a (an implicit for scala) `SessionSerializer[T, String]` (`SessionSerializer<T, String>`). For case classes, it's most 
 convenient to use a `MultiValueSessionSerializer[T]` or (`MultiValueSessionSerializer<T>`) which should convert the instance into a `String -> String` map 
 (nested types are not supported on purpose, as session data should be small & simple). Examples of `SessionSerializer` and `MultiValueSessionSerializer` 
-usage can be found [here](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/scala/com/softwaremill/example/serializers) for scala and [here](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/java/com/softwaremill/example/serializers) for java. 
+usage can be found [here](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/scala/com/github/pjfanning/session/example/serializers) for scala and [here](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/java/com/github/pjfanning/session/example/serializers) for java. 
 
-Here are code samples in [scala](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/scala/com/softwaremill/example/session/manager/MyScalaSessionManager.scala) and [java](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/java/com/softwaremill/example/session/manager/MyJavaSessionManager.java) illustrating how to create a session manager where the session content will be a single `Long` number.
+Here are code samples in [scala](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/scala/com/github/pjfanning/session/example/session/manager/MyScalaSessionManager.scala) and [java](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/java/com/github/pjfanning/session/example/session/manager/MyJavaSessionManager.java) illustrating how to create a session manager where the session content will be a single `Long` number.
 
 The basic directives enable you to set, read and invalidate the session. To create a new client-side session (create
-and set a new session cookie), you need to use the `setSession` directive. See how it's done in [java](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/java/com/softwaremill/example/session/SetSessionJava.java) and [scala](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/scala/com/softwaremill/example/session/SetSessionScala.scala).
+and set a new session cookie), you need to use the `setSession` directive. See how it's done in [java](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/java/com/github/pjfanning/session/example/session/SetSessionJava.java) and [scala](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/scala/com/github/pjfanning/session/example/session/SetSessionScala.scala).
 
 Note that when usingValue cookies, their size is limited to 4KB, so you shouldn't put too much data in there (the signature 
 takes about 50 characters). 
 
 You can require a session to be present, optionally require a session or get a full description of possible session decode outcomes. 
-Check [java](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/java/com/softwaremill/example/session/VariousSessionsJava.java) and [scala](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/scala/com/softwaremill/example/session/VariousSessionsScala.scala) examples for details.
+Check [java](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/java/com/github/pjfanning/session/example/session/VariousSessionsJava.java) and [scala](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/scala/com/github/pjfanning/session/example/session/VariousSessionsScala.scala) examples for details.
 
-If a required session is not present, by default a `403` HTTP status code is returned. Finally, a session can be invalidated. See how it's done in examples for [java](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/java/com/softwaremill/example/session/SessionInvalidationJava.java) and [scala](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/scala/com/softwaremill/example/session/SessionInvalidationScala.scala).
+If a required session is not present, by default a `403` HTTP status code is returned. Finally, a session can be invalidated. See how it's done in examples for [java](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/java/com/github/pjfanning/session/example/session/SessionInvalidationJava.java) and [scala](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/scala/com/github/pjfanning/session/example/session/SessionInvalidationScala.scala).
 
 ### Encrypting the session
 
@@ -170,14 +170,14 @@ or if an attacker steals the cookie, it can be re-used. Hence having an expiry d
 
 By default, sessions are encoded into a string usingValue a custom format, where expiry/data/signature parts are separated usingValue `-`, and data fields are separated usingValue `=` and url-encoded.
 
-You can also encode sessions in the [Json Web Tokens](http://jwt.io) format, by adding the additional `jwt` dependency, which makes use of [`json4s`](http://json4s.org).
+You can also encode sessions in the [Json Web Tokens](https://jwt.io) format, by adding the additional `jwt` dependency, which makes use of [`json4s`](https://json4s.org).
 
 When usingValue JWT, you need to provide a serializer which serializes session data to a `JValue` instead of a `String`. 
 A number of serializers for the basic types are present in `JValueSessionSerializer`, as well as a generic serializer for case classes (used above).
 
 You may also find it helpful to include the json4s-ext library which provides serializers for common Java types such as  `java.util.UUID`, `org.joda.time._` and Java enumerations.
 
-Grab some [java](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/java/com/softwaremill/example/jwt/JavaJwtExample.java) and [scala](https://github.com/pjfanning/pekko-http-session/blob/master/example/src/main/scala/com/softwaremill/example/serializers/JWTSerializersScala.scala) examples.
+Grab some [java](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/java/com/github/pjfanning/session/example/jwt/JavaJwtExample.java) and [scala](https://github.com/pjfanning/pekko-http-session/blob/main/example/src/main/scala/com/github/pjfanning/session/example/serializers/JWTSerializersScala.scala) examples.
 
 There are many tools available to read JWT session data usingValue various platforms, e.g. 
 [for Angular](https://github.com/auth0/angular-jwt).
@@ -259,7 +259,7 @@ That's because all non-JWT sessions still depend on HMAC with SHA256 algorithm w
 ## CSRF protection (cookie transport only)
 
 CSRF is a kind of an attack where an attacker issues a `GET` or `POST` request on behalf of a user, if the user e.g.
-clicks on a specially constructed link. See the [OWASP page](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet)
+clicks on a specially constructed link. See the [OWASP page](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
 or the [Play! docs](https://www.playframework.com/documentation/2.2.x/JavaCsrf) for a thorough introduction.
 
 Web apps which use cookies for session management should be protected against CSRF attacks. This implementation:
