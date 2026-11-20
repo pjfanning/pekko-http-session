@@ -14,16 +14,16 @@ jobs:
       JAVA_OPTS: -Xmx4G
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v6
       with:
         java-version: 17
         distribution: 'temurin'
     - name: Set up sbt
       uses: sbt/setup-sbt@v1
     - name: Cache sbt
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           ~/.sbt
@@ -43,26 +43,28 @@ jobs:
         find $HOME/.sbt                              -name "*.lock"               -delete || true
 
   publish:
-    name: Publish release
+    # releases on v* tags; snapshots on every push to main (sbt-ci-release picks
+    # release vs snapshot from the dynver-derived version)
+    name: Publish
     needs: [ci]
-    if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v'))
+    if: github.event_name == 'push' && github.repository == 'pjfanning/pekko-http-session' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     env:
       JAVA_OPTS: -Xmx4G
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: 17
           distribution: 'temurin'
       - name: Set up sbt
         uses: sbt/setup-sbt@v1
       - name: Cache sbt
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.sbt
